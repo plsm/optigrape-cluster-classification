@@ -92,9 +92,10 @@ def open_results_file (args, parameters):
     # type: (argparse.Namespace, dict) -> object
     data = datetime.datetime.now ().__str__().split ('.') [0]
     data = data.replace (' ', '-').replace (':', '-')
-    filename_result = "results_{0}_{1}_{2}_{3}_{4}.csv".format (
+    filename_result = "results_{0}_{1}_{2}_{3}_{4}_{5}.csv".format (
         os.path.basename (args.data_sets),
         os.path.basename (args.learning_parameters),
+        args.RNG_seed,
         os.getenv ("SGE_TASK_ID"),
         os.getenv ("JOB_ID"),
         data
