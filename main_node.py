@@ -97,10 +97,11 @@ def filename_suffix (args):
     # type: (argparse.Namespace) -> str
     data = datetime.datetime.now ().__str__().split ('.') [0]
     data = data.replace (' ', '-').replace (':', '-')
-    result = "results_{0}_{1}_{2}_{3}_{4}_{5}.csv".format (
+    result = "results_{0}_{1}_{2}_{3}_{4}_{5}_{6}.csv".format (
         os.path.basename (args.data_sets),
         os.path.basename (args.learning_parameters),
         args.RNG_seed,
+        args.fraction_test,
         os.getenv ("SGE_TASK_ID"),
         os.getenv ("JOB_ID"),
         data
