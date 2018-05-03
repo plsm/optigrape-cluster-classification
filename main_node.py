@@ -16,10 +16,13 @@ def main ():
     RNG = numpy.random.RandomState (args.RNG_seed)
     data_sets = dataset.load_data_sets (args.data_sets)
     parameters = load_neural_network_parameters (args.learning_parameters)
-    results_file, results_writer = open_results_file (args, parameters)
+    suffix = filename_suffix (args)
+    results_file, results_writer = open_results_file (suffix, parameters)
+    NN_file, NN_writer = open_neural_network_file (suffix)
     for index in range (args.number_repeats):
-        run_neural_network (RNG, args.fraction_test, data_sets, parameters, results_writer, index)
+        run_neural_network (RNG, args.fraction_test, data_sets, parameters, results_writer, NN_writer, index)
     results_file.close ()
+    NN_file.close ()
 
 def parse_arguments ():
     parser = argparse.ArgumentParser (
@@ -39,7 +42,7 @@ def load_neural_network_parameters (parameters_filename):
         print ("Parameters of the neural network: {0}".format (result))
         return result
 
-def run_neural_network (RNG, fraction_test, data_sets, parameters, results_writer, index_repeat):
+def run_neural_network (RNG, fraction_test, data_sets, parameters, results_writer, NN_writer, index_repeat):
     print ("I'm going to run neural network")
     train, test = dataset.split_data_sets_train_test (data_sets, fraction_test, RNG)
     clf = sklearn.neural_network.MLPClassifier (
@@ -51,12 +54,14 @@ def run_neural_network (RNG, fraction_test, data_sets, parameters, results_write
         max_iter = parameters ["max_iterations"],
         early_stopping = parameters ["early_stopping"]
     )
+    current_time = time.time ()
     clf.fit (train.xs, train.ys)
     ys = clf.predict (test.xs)
     score = compute_score (ys, test.ys)
     print ("Score is {0}".format (score))
     hit = random_chance_to_hit (train, test)
-    write_results (results_writer, index_repeat, parameters, clf, score, hit)
+    write_results (results_writer, current_time, index_repeat, parameters, clf, score, hit)
+    write_neural_network (NN_writer, current_time, index_repeat, clf)
 
 def compute_score (classifier_ys, test_ys):
     score = 0
@@ -88,11 +93,11 @@ def random_chance_to_hit (train, test):
     result = result / float (len (train.IDs) * len (test.IDs))
     return result
 
-def open_results_file (args, parameters):
-    # type: (argparse.Namespace, dict) -> object
+def filename_suffix (args):
+    # type: (argparse.Namespace) -> str
     data = datetime.datetime.now ().__str__().split ('.') [0]
     data = data.replace (' ', '-').replace (':', '-')
-    filename_result = "results_{0}_{1}_{2}_{3}_{4}_{5}.csv".format (
+    result = "results_{0}_{1}_{2}_{3}_{4}_{5}.csv".format (
         os.path.basename (args.data_sets),
         os.path.basename (args.learning_parameters),
         args.RNG_seed,
@@ -100,7 +105,11 @@ def open_results_file (args, parameters):
         os.getenv ("JOB_ID"),
         data
     )
-    results_file = open (filename_result, "w")
+    return result
+
+def open_results_file (suffix, parameters):
+    # type: (str, dict) -> object
+    results_file = open ("results_{0}.csv".format (suffix), "w")
     results_writer = csv.writer (results_file, delimiter = ',', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
     header_row = [
         "time",
@@ -120,9 +129,14 @@ def open_results_file (args, parameters):
     results_writer.writerow (header_row)
     return results_file, results_writer
 
-def write_results (results_writer, index_repeat, parameters, clf, score, hit):
+def open_neural_network_file (suffix):
+    NN_file = open ("neural-network_{0}.csv".format (suffix), "w")
+    NN_writer = csv.writer (NN_file, delimiter = ',', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
+    return NN_file, NN_writer
+
+def write_results (results_writer, current_time, index_repeat, parameters, clf, score, hit):
     row = [
-        time.time (),
+        current_time,
         index_repeat,
         parameters ["activation"],
         parameters ["solver"],
@@ -135,6 +149,16 @@ def write_results (results_writer, index_repeat, parameters, clf, score, hit):
         hit
     ]
     results_writer.writerow (row)
+
+def write_neural_network (NN_writer, current_time, index_repeat, clf):
+    row = [current_time, index_repeat, clf.out_activation_, clf.n_layers_, clf.n_outputs_]
+    for matrix in clf.coefs_:
+        for cr in matrix:
+            row.extend (cr)
+    for r in clf.intercepts_:
+        row.extend (r)
+    NN_writer.writerow (row)
+
 
 if __name__ == "__main__":
     main ()
