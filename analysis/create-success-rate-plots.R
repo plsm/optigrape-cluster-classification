@@ -1,4 +1,5 @@
 library ("data.table")
+library ("ggplot2")
 
 create.success.rate.boxplots <- function (
   experiment.filename
@@ -58,4 +59,96 @@ create.success.rate.boxplots <- function (
   )
   plot.performance ()
   dev.off ()
+}
+
+
+## Create an image plot with the median success rate of classifiers.  The data
+## set was composed of two classes.
+##
+## The experiment filename is a CSV file with columns: filename with classifiers
+## parameters and success rate, names of class A and B, learning parameters, and
+## fraction test.
+##
+create.success.rate.image.plot.for.2.classes <- function (
+  experiment.filename
+) {
+  experiments <- fread (experiment.filename)
+  data <- experiments [
+    ,
+    fread (filename),
+    by = .(
+      filename,
+      class.A,
+      class.B,
+      learning.parameters,
+      fraction.test
+    )
+  ]
+  data.to.plot <- data [
+    ,
+    .(
+      value = median (score)
+    ),
+    keyby = .(
+      class.A,
+      class.B,
+      learning.parameters,
+      fraction.test
+    )
+  ]
+  plot.performance <- function (
+    subset.data,
+    learning.parameters,
+    fraction.test
+  ) {
+    graphics <- ggplot (
+      data = subset.data
+    ) + geom_point (
+      mapping = aes (
+        x = class.A,
+        y = class.B,
+        color = value,
+        size = value
+      )
+    ) + scale_colour_gradient (
+      low = "#FF0000",
+      high = "#00FF00",
+      labels = function (v) return (sprintf ("%d%%", v * 100))
+    ) + scale_size (
+      labels = function (v) return (sprintf ("%d%%", v * 100))
+    ) + theme_bw (
+    ) + labs (
+      title = "median of classifier success rate in a data set with two classes",
+      x = "class A",
+      y = "class B",
+      colour = "success rate",
+      size = "success rate"
+    )
+    ggsave (
+      filename = sprintf (
+        "success-rate_2-class-data-set_%s_%.2f.png",
+        learning.parameters,
+        fraction.test
+      ),
+      device = "png",
+      scale = 1,
+      plot = graphics,
+      width = 2.1 + nrow (subset.data [, 1, by = .(class.A)]) * 5.7 / 7,
+      height = 4,
+      units = "in"
+    )
+    return (0)
+  }
+  data.to.plot [
+    ,
+    plot.performance (
+      .SD,
+      learning.parameters,
+      fraction.test
+    ),
+    by = .(
+      learning.parameters,
+      fraction.test
+    )
+  ]
 }
