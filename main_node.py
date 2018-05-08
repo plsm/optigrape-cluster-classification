@@ -97,7 +97,7 @@ def filename_suffix (args):
     # type: (argparse.Namespace) -> str
     data = datetime.datetime.now ().__str__().split ('.') [0]
     data = data.replace (' ', '-').replace (':', '-')
-    result = "results_{0}_{1}_{2}_{3}_{4}_{5}_{6}.csv".format (
+    result = "{0}_{1}_{2}_{3}_{4}_{5}_{6}".format (
         os.path.basename (args.data_sets),
         os.path.basename (args.learning_parameters),
         args.RNG_seed,
