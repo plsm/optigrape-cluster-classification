@@ -29,10 +29,10 @@ def main ():
                         ]
                     }
                     filename = 'NN_{}{}_VS_{}{}.dataset'.format (
-                        args.suffix,
+                        args.prefix,
                         a_label,
                         b_label,
-                        args.prefix,
+                        args.suffix,
                     )
                     with open (filename, 'w') as fdw:
                         yaml.dump (dict, fdw)
@@ -48,8 +48,8 @@ def main ():
                 ]
             }
             filename = 'NN_{}ALL{}.dataset'.format (
+                args.prefix,
                 args.suffix,
-                args.prefix
             )
             with open (filename, 'w') as fdw:
                 yaml.dump (data, fdw)
