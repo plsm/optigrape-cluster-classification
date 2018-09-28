@@ -9,7 +9,7 @@ class DataSet:
         self.filename = filename
         with open (filename, "r") as fd:
             reader = csv.reader (fd, delimiter = '\t', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
-            reader.__next__ ()
+            reader.next ()
             self.rows = [row for row in reader]
         self.class_name = class_name
         self.class_ID = DataSet.CLASS_COUNTER
