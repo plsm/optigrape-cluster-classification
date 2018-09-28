@@ -36,6 +36,23 @@ def main ():
                     )
                     with open (filename, 'w') as fdw:
                         yaml.dump (dict, fdw)
+    if args.all:
+        if args.neural_network:
+            data = {
+                'datasets' : [
+                    {
+                        'filename': a_data_set_file,
+                        'class' : index * [0] + [1] + (len (list_data_sets) - index - 1) * [0]
+                    }
+                    for index, (a_data_set_file, _a_label) in enumerate (list_data_sets)
+                ]
+            }
+            filename = 'NN_{}ALL{}.dataset'.format (
+                args.suffix,
+                args.prefix
+            )
+            with open (filename, 'w') as fdw:
+                yaml.dump (data, fdw)
 
 def parse_arguments ():
     parser = argparse.ArgumentParser (
@@ -51,6 +68,11 @@ def parse_arguments ():
         '--pairwise',
         action = 'store_true',
         help = 'generate .dataset files containing pairs of the supplied data sets'
+    )
+    parser.add_argument (
+        '--all',
+        action = 'store_true',
+        help = 'generate a .dataset file containing all the supplied data sets'
     )
     parser.add_argument (
         '--neural-network',
