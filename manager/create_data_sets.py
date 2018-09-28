@@ -12,6 +12,11 @@ def main ():
         for f in args.FILE
         if os.path.exists (os.path.abspath (f))
     ]
+    for f in args.FILE:
+        if not os.path.exists (f):
+            print ('[W] File {} does not exist!'.format (f))
+    if len (list_data_sets) == 0:
+        print ('[W] No data files to process!')
     if args.pairwise:
         for index, (a_data_set_file, a_label) in enumerate (list_data_sets [:-2]):
             for (b_data_set_file, b_label) in list_data_sets [(index + 1):]:
