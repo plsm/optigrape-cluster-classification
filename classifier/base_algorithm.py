@@ -57,9 +57,16 @@ class Base_Algorithm:
     @staticmethod
     def compute_score (classifier_ys, test_ys):
         score = 0
-        for an_y, a_test_y in zip (classifier_ys, test_ys):
-            if all ([ay == at for ay, at in zip (an_y, a_test_y)]):
-                score += 1
+        if isinstance (classifier_ys [0], list) and isinstance (test_ys [0], list):
+            for an_y, a_test_y in zip (classifier_ys, test_ys):
+                if all ([ay == at for ay, at in zip (an_y, a_test_y)]):
+                    score += 1
+        elif isinstance (classifier_ys [0], int) and isinstance (test_ys [0], int):
+            for an_y, a_test_y in zip (classifier_ys, test_ys):
+                if an_y == a_test_y:
+                    score += 1
+        else:
+            raise Exception ('[E] Unknown class type of {} {}'.format (classifier_ys, test_ys))
         return score / float (len (test_ys))
 
     @staticmethod
