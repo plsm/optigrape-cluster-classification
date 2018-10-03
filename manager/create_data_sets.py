@@ -17,6 +17,7 @@ def main ():
             print ('[W] File {} does not exist!'.format (f))
     if len (list_data_sets) == 0:
         print ('[W] No data files to process!')
+    list_data_sets = process_labels (list_data_sets)
     if args.decision_tree:
         create_data_sets_for_decision_tree (args, list_data_sets)
     if args.pairwise:
@@ -78,7 +79,7 @@ def create_data_sets_for_decision_tree (args, list_data_sets):
                 args.suffix
             )
         )
-    if args.pairs:
+    if args.pairwise:
         for index, (a_data_set_file, a_label) in enumerate (list_data_sets [:-2]):
             for (b_data_set_file, b_label) in list_data_sets [(index + 1):]:
                 write_data_sets_file (
@@ -105,6 +106,30 @@ def create_data_sets_for_decision_tree (args, list_data_sets):
 def write_data_sets_file (data, filename):
     with open (filename, 'w') as fdw:
         yaml.dump (data, fdw)
+
+def process_labels (list_data_sets):
+    prefix_index = 0
+    suffix_index = 0
+    go = True
+    stop_prefix = False
+    stop_suffix = False
+    while go:
+        if not stop_prefix: prefix_index += 1
+        if not stop_suffix: suffix_index += -1
+        common_prefix = list_data_sets [0][1][:prefix_index]
+        common_suffix = list_data_sets [0][1][suffix_index:]
+        for _, a_label in list_data_sets [1:]:
+            if not stop_prefix and a_label [:prefix_index] != common_prefix:
+                stop_prefix = True
+                prefix_index += -1
+            if not stop_suffix and a_label [suffix_index:] != common_suffix:
+                stop_suffix = True
+                suffix_index += 1
+        go = not stop_suffix or not stop_prefix
+    return [
+        (a_data_set_file, a_label [prefix_index:suffix_index])
+        for a_data_set_file, a_label in list_data_sets
+    ]
 
 def parse_arguments ():
     parser = argparse.ArgumentParser (
