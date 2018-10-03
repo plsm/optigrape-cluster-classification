@@ -21,7 +21,7 @@ def main ():
     if args.decision_tree:
         create_data_sets_for_decision_tree (args, list_data_sets)
     if args.pairwise:
-        for index, (a_data_set_file, a_label) in enumerate (list_data_sets [:-2]):
+        for index, (a_data_set_file, a_label) in enumerate (list_data_sets [:-1]):
             for (b_data_set_file, b_label) in list_data_sets [(index + 1):]:
                 if args.neural_network:
                     dict = {
@@ -80,7 +80,7 @@ def create_data_sets_for_decision_tree (args, list_data_sets):
             )
         )
     if args.pairwise:
-        for index, (a_data_set_file, a_label) in enumerate (list_data_sets [:-2]):
+        for index, (a_data_set_file, a_label) in enumerate (list_data_sets [:-1]):
             for (b_data_set_file, b_label) in list_data_sets [(index + 1):]:
                 write_data_sets_file (
                     data = {
