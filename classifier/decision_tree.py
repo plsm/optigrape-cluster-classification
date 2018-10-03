@@ -67,10 +67,10 @@ class Decision_Tree (base_algorithm.Base_Algorithm):
             current_time,
             index_repeat,
             classifier.tree_.node_count
-        ] + classifier.tree_.children_left + \
-              classifier.tree_.children_right + \
-              classifier.tree_.feature + \
-              classifier.tree_.threshold
+        ] + [x for x in classifier.tree_.children_left] + \
+              [x for x in classifier.tree_.children_right] + \
+              [x for x in classifier.tree_.feature] + \
+              [x for x in classifier.tree_.threshold]
         self.classifier_writer.writerow (row)
 
 if __name__ == '__main__':
