@@ -17,6 +17,8 @@ def main ():
             print ('[W] File {} does not exist!'.format (f))
     if len (list_data_sets) == 0:
         print ('[W] No data files to process!')
+    if args.decision_tree:
+        create_data_sets_for_decision_tree (args, list_data_sets)
     if args.pairwise:
         for index, (a_data_set_file, a_label) in enumerate (list_data_sets [:-2]):
             for (b_data_set_file, b_label) in list_data_sets [(index + 1):]:
@@ -59,6 +61,51 @@ def main ():
             with open (filename, 'w') as fdw:
                 yaml.dump (data, fdw)
 
+def create_data_sets_for_decision_tree (args, list_data_sets):
+    if args.all:
+        write_data_sets_file (
+            data = {
+                'datasets': [
+                    {
+                        'filename': a_data_set_file,
+                        'class': [index + 1]
+                    }
+                    for index, (a_data_set_file, _a_label) in enumerate (list_data_sets)
+                ]
+            },
+            filename = 'DT_{}ALL{}'.format (
+                args.prefix,
+                args.suffix
+            )
+        )
+    if args.pairs:
+        for index, (a_data_set_file, a_label) in enumerate (list_data_sets [:-2]):
+            for (b_data_set_file, b_label) in list_data_sets [(index + 1):]:
+                write_data_sets_file (
+                    data = {
+                        'datasets': [
+                            {
+                                'filename' : a_data_set_file,
+                                'class' : [1]
+                            },
+                            {
+                                'filename': b_data_set_file,
+                                'class': [2]
+                            },
+                        ]
+                    },
+                    filename = 'DT_{}{}_VS_{}{}.dataset'.format (
+                        args.prefix,
+                        a_label,
+                        b_label,
+                        args.suffix,
+                    )
+                )
+
+def write_data_sets_file (data, filename):
+    with open (filename, 'w') as fdw:
+        yaml.dump (data, fdw)
+
 def parse_arguments ():
     parser = argparse.ArgumentParser (
         description = 'Read a set of files containing data set classes and generate .dataset files for the classifier algorithms.'
@@ -83,6 +130,11 @@ def parse_arguments ():
         '--neural-network',
         action = 'store_true',
         help = 'generate .dataset files for the neural network classifier algorithm.  The filename starts by NN.'
+    )
+    parser.add_argument (
+        '--decision-tree',
+        action = 'store_true',
+        help = 'generate .dataset files for the decision tree classifier algorithm.  The filename starts by DT.'
     )
     parser.add_argument (
         '--suffix',
