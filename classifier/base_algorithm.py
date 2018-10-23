@@ -9,7 +9,14 @@ import command_line_arguments
 import dataset
 
 class Base_Algorithm:
+    """
+    Contains functions used by all classifier algorithms.
+    Derived classes should implement the methods load_parameters, open_results_file, open_classifier_file and run.
+    """
     def __init__(self):
+        """
+        Instantiate a classifier using command line options and run it.
+        """
         args = parse_arguments ()
         self.RNG = numpy.random.RandomState (args.RNG_seed)
         self.data_sets = dataset.load_data_sets (args.data_sets)
@@ -25,6 +32,11 @@ class Base_Algorithm:
     @staticmethod
     def __filename_suffix (args):
         # type: (argparse.Namespace) -> str
+        """
+        Compute a filename suffix used in the file with the classification task results and in the file with the classifier data.
+        :param args:
+        :return:
+        """
         data = datetime.datetime.now ().__str__ ().split ('.') [0]
         data = data.replace (' ', '-').replace (':', '-')
         result = "{0}_{1}_{2}_{3}_{4}_{5}_{6}".format (
@@ -40,11 +52,12 @@ class Base_Algorithm:
 
     def run_classifier (self, classifier, train, test):
         """
-
-        :param classifier:
-        :param train:
-        :param test:
-        :return:
+        Runs the given classifier on the given training set and evaluate it on the test set.
+        The classifier should provide a fit and predict methods
+        :param classifier: One of the classifiers defined in the sklearn package.
+        :param train: the training set.
+        :param test: the test set.
+        :return: a tuple with current time, classification score and the probability of randomly guessing the correct class.
         """
         current_time = time.time ()
         classifier.fit (train.xs, train.ys)
@@ -56,6 +69,14 @@ class Base_Algorithm:
 
     @staticmethod
     def compute_score (classifier_ys, test_ys):
+        """
+        Compute the classification score, meaning the fraction of correctly classified records.
+        The arguments are either a list of integers or a list of list of objects.
+        The first case is the output of uni-dimensional classifiers, while the second case is the output of multi-dimensional classifiers.
+        :param classifier_ys: The classifier output.
+        :param test_ys: The correct class.
+        :return: A floating point number representing the classification score.
+        """
         score = 0
         if isinstance (classifier_ys [0], list) and isinstance (test_ys [0], list):
             for an_y, a_test_y in zip (classifier_ys, test_ys):
