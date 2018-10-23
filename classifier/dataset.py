@@ -2,7 +2,7 @@ import csv
 import yaml
 
 class DataSet:
-    CLASS_COUNTER = 1
+    CLASS_COUNTER = 0
 
     def __init__ (self, filename, class_name):
         print ("Reading CSV file {0}...".format (filename))
@@ -12,8 +12,8 @@ class DataSet:
             reader.next ()
             self.rows = [row for row in reader]
         self.class_name = class_name
-        self.class_ID = DataSet.CLASS_COUNTER
         DataSet.CLASS_COUNTER += 1
+        self.class_ID = DataSet.CLASS_COUNTER
 
     def split_two_sets (self, fraction_second, RNG):
         """

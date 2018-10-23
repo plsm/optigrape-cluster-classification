@@ -31,7 +31,8 @@ class Neural_Network (base_algorithm.Base_Algorithm):
             'hidden.layer.{0:d}.size'.format (index + 1) for index in range (len (self.parameters ["hidden_layers_size"]))
         ] + [
             "num.iterations",
-            "score",
+            "all.score",
+        ] + ["partial.score.{}".format (index) for index in range (dataset.DataSet.CLASS_COUNTER)] + [
             "random.chance.win"
         ]
         results_writer.writerow (header_row)
@@ -69,7 +70,7 @@ class Neural_Network (base_algorithm.Base_Algorithm):
             self.parameters ["max_iterations"]
         ] + self.parameters ["hidden_layers_size"] + [
             clf.n_iter_,
-            score,
+        ] + score + [
             hit
         ]
         self.results_writer.writerow (row)

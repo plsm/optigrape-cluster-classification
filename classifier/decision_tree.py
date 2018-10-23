@@ -26,7 +26,8 @@ class Decision_Tree (base_algorithm.Base_Algorithm):
             "criterion",
             'max.depth',
             "min.samples.split",
-            "score",
+            "all.score",
+        ] + ["partial.score.{}".format (index) for index in range (dataset.DataSet.CLASS_COUNTER)] + [
             "random.chance.win"
         ]
         results_writer.writerow (header_row)
@@ -57,7 +58,7 @@ class Decision_Tree (base_algorithm.Base_Algorithm):
             self.parameters ["criterion"],
             self.parameters ["max_depth"],
             self.parameters ["min_samples_split"],
-            score,
+        ] + score + [
             hit
         ]
         self.results_writer.writerow (row)

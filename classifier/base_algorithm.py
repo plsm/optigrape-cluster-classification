@@ -77,18 +77,39 @@ class Base_Algorithm:
         :param test_ys: The correct class.
         :return: A floating point number representing the classification score.
         """
-        score = 0
-        if isinstance (classifier_ys [0], list) and isinstance (test_ys [0], list):
+        all_score = 0
+        partial_count = {}
+        if isinstance (classifier_ys [0], numpy.ndarray) and isinstance (test_ys [0], list):
             for an_y, a_test_y in zip (classifier_ys, test_ys):
+                key = tuple (a_test_y)
+                if key not in partial_count:
+                    partial_count [key] = [0, 0]
                 if all ([ay == at for ay, at in zip (an_y, a_test_y)]):
-                    score += 1
+                    all_score += 1
+                    partial_count [key][0] += 1
+                partial_count [key][1] += 1
         elif isinstance (classifier_ys [0], int) and isinstance (test_ys [0], int):
             for an_y, a_test_y in zip (classifier_ys, test_ys):
+                key = a_test_y
+                if key not in partial_count:
+                    partial_count [key] = [0, 0]
                 if an_y == a_test_y:
-                    score += 1
+                    all_score += 1
+                    partial_count [key] [0] += 1
+                partial_count [key] [1] += 1
         else:
+            print '{}'.format (type (classifier_ys [0]))
+            print '{}'.format (type (test_ys [0]))
             raise Exception ('[E] Unknown class type of {} {}'.format (classifier_ys, test_ys))
-        return score / float (len (test_ys))
+        classes = partial_count.keys ()
+        classes.sort ()
+        partial_score = [
+            partial_count [key][0] / float (partial_count [key][1])
+            for key in classes
+        ]
+        all_score = all_score / float (len (test_ys))
+        result = [all_score] + partial_score
+        return result
 
     @staticmethod
     def random_chance_to_hit (train, test):
