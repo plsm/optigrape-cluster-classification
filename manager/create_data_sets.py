@@ -69,12 +69,12 @@ def create_data_sets_for_decision_tree (args, list_data_sets):
                 'datasets': [
                     {
                         'filename': a_data_set_file,
-                        'class': [index + 1]
+                        'class': index + 1
                     }
                     for index, (a_data_set_file, _a_label) in enumerate (list_data_sets)
                 ]
             },
-            filename = 'DT_{}ALL{}'.format (
+            filename = 'DT_{}ALL{}.dataset'.format (
                 args.prefix,
                 args.suffix
             )
@@ -87,11 +87,11 @@ def create_data_sets_for_decision_tree (args, list_data_sets):
                         'datasets': [
                             {
                                 'filename' : a_data_set_file,
-                                'class' : [1]
+                                'class' : 1
                             },
                             {
                                 'filename': b_data_set_file,
-                                'class': [2]
+                                'class': 2
                             },
                         ]
                     },
