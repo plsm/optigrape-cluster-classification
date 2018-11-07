@@ -38,6 +38,14 @@ class Decision_Tree (base_algorithm.Base_Algorithm):
         classifier_writer = csv.writer (classifier_file, delimiter = ',', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
         return classifier_file, classifier_writer
 
+    def open_output_file (self):
+        filename = 'decision-tree_output_{0}.csv'.format (self.suffix)
+        output_file = open (filename, 'w')
+        output_writer = csv.writer (output_file, delimiter = ',', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
+        header_row = ['predicted.class', 'real.class']
+        output_writer.writerow (header_row)
+        return output_file, output_writer
+
     def run (self, fraction_test, index_repeat):
         print ("I'm going to run decision tree")
         train, test = dataset.split_data_sets_train_test (self.data_sets, fraction_test, self.RNG)

@@ -43,6 +43,20 @@ class Neural_Network (base_algorithm.Base_Algorithm):
         NN_writer = csv.writer (NN_file, delimiter = ',', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
         return NN_file, NN_writer
 
+    def open_output_file (self):
+        filename = 'neural-network_output_{0}.csv'.format (self.suffix)
+        output_file = open (filename, 'w')
+        output_writer = csv.writer (output_file, delimiter = ',', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
+        header_row = [
+            'predicted.class.{}'.format (index + 1)
+            for index in range (dataset.DataSet.CLASS_COUNTER)
+        ] + [
+            'real.class.{}'.format (index + 1)
+            for index in range (dataset.DataSet.CLASS_COUNTER)
+        ]
+        output_writer.writerow (header_row)
+        return output_file, output_writer
+
     def run (self, fraction_test, index_repeat):
         print ("I'm going to run neural network")
         train, test = dataset.split_data_sets_train_test (self.data_sets, fraction_test, self.RNG)

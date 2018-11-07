@@ -24,10 +24,12 @@ class Base_Algorithm:
         self.suffix = self.__filename_suffix (args)
         results_file, self.results_writer = self.open_results_file ()
         classifier_file, self.classifier_writer = self.open_classifier_file ()
+        output_file, self._output_writer = self.open_output_file ()
         for index in range (args.number_repeats):
             self.run (args.fraction_test, index)
         results_file.close ()
         classifier_file.close ()
+        output_file.close ()
 
     @staticmethod
     def __filename_suffix (args):
@@ -62,6 +64,7 @@ class Base_Algorithm:
         current_time = time.time ()
         classifier.fit (train.xs, train.ys)
         ys = classifier.predict (test.xs)
+        self._write_classifier_output (ys, test.ys)
         score = self.compute_score (ys, test.ys)
         print ("Score is {0}".format (score))
         hit = self.random_chance_to_hit (train, test)
@@ -111,6 +114,20 @@ class Base_Algorithm:
         result = [all_score] + partial_score
         return result
 
+    def _write_classifier_output (self, classifier_ys, test_ys):
+        if isinstance (classifier_ys [0], numpy.ndarray) and isinstance (test_ys [0], list):
+            for an_y, a_test_y in zip (classifier_ys, test_ys):
+                row = list (an_y) + a_test_y
+                self._output_writer.writerow (row)
+        elif isinstance (classifier_ys [0], int) and isinstance (test_ys [0], int):
+            for an_y, a_test_y in zip (classifier_ys, test_ys):
+                row = [an_y, a_test_y]
+                self._output_writer.writerow (row)
+        else:
+            print '{}'.format (type (classifier_ys [0]))
+            print '{}'.format (type (test_ys [0]))
+            raise Exception ('[E] Unknown class type of {} {}'.format (classifier_ys, test_ys))
+
     @staticmethod
     def random_chance_to_hit (train, test):
         # type: (dataset.Function, dataset.Function) -> float
@@ -144,6 +161,9 @@ class Base_Algorithm:
         raise Exception ('Not overloaded')
 
     def open_classifier_file (self):
+        raise Exception ('Not overloaded')
+
+    def open_output_file (self):
         raise Exception ('Not overloaded')
 
     def run (self, fraction_test, index):
