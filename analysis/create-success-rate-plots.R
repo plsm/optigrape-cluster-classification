@@ -24,7 +24,7 @@ create.success.rate.boxplots <- function (
       mar = c (4, 30, 5, 2)
     )
     boxplot (
-      formula = score~data.sets+learning.parameters+fraction.test,
+      formula = all.score~data.sets+learning.parameters+fraction.test,
       data = data,
       ylim = c (0, 1),
       main = "classification score versus data sets and learning parameters",
