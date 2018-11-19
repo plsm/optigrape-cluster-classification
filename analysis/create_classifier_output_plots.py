@@ -48,7 +48,7 @@ def create_classifier_output_plots (classifier, filename, long_classes_names, sh
     axes_size = 4
     figwidth = axes_size * number_cols + wspace * (number_cols - 1)
     figheight = axes_size * number_rows + margin_top + hspace * (number_rows - 1)
-    figure = matplotlib.pyplot.figure (figsize = (figwidth, figheight))
+    figure = matplotlib.pyplot.figure (figsize = (figwidth, figheight), dpi = 200)
     array_axes = figure.subplots (
         nrows = number_rows,
         ncols = number_cols,
@@ -74,7 +74,7 @@ def create_classifier_output_plots (classifier, filename, long_classes_names, sh
                 ax.append (the_value)
                 labels_to_use.append (labels [index_value])
                 colors_to_use.append (colors [index_value])
-                if float (the_value) / total < 0.02:
+                if float (the_value) / total < 0.03:
                     explode.append (0.2)
                 else:
                     explode.append (0)
@@ -86,6 +86,7 @@ def create_classifier_output_plots (classifier, filename, long_classes_names, sh
             colors = colors_to_use,
             autopct = '%1.1f%%',
             radius = 0.75,
+            pctdistance = 0.8
         )
         an_axes.set_title ('Predicted classes when classifier input is\n{}'.format (long_classes_names [index_class]))
     # setup a single axes showing the legend
