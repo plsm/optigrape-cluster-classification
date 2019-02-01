@@ -8,8 +8,9 @@ import sys
 
 DECISION_TREE = 1
 NEURAL_NETWORK = 2
+GENETIC_PROGRAMING = 3
 
-def create_classifier_output_plots (classifier, filename, long_classes_names, short_classes_names):
+def create_classifier_output_plots (classifier, filename, long_classes_names, short_classes_names, plot_filename_suffix):
     """
     Create a figure with pie plots showing the output of the classifiers
     when presented with a record of a given class.  There is a pie for each
@@ -22,11 +23,14 @@ def create_classifier_output_plots (classifier, filename, long_classes_names, sh
         sum_output = read_decision_tree_output (filename, number_classes)
     elif classifier is NEURAL_NETWORK:
         sum_output = read_neural_network_output (filename, number_classes)
+    elif classifier is GENETIC_PROGRAMING:
+        sum_output = read_genetic_programming_output (filename, number_classes)
     else:
         print ('Unrecognised classifier: {}!'.format (classifier))
         sys.exit (1)
+    write_output (sum_output)
     # plot artist attributes
-    if classifier is DECISION_TREE:
+    if classifier is DECISION_TREE or classifier is GENETIC_PROGRAMING:
         NO_OUTPUT = []
         labels = short_classes_names
         cmap = matplotlib.cm.rainbow (numpy.linspace (0.0, 1.0, number_classes))
@@ -34,8 +38,13 @@ def create_classifier_output_plots (classifier, filename, long_classes_names, sh
     elif classifier is NEURAL_NETWORK:
         NO_OUTPUT = ['no output']
         labels = short_classes_names + NO_OUTPUT
-        cmap = matplotlib.cm.rainbow (numpy.linspace (0.0, 1.0, number_classes + 1))
-        colors = cmap [range (number_classes + 1)]
+        cmap = matplotlib.cm.rainbow (numpy.linspace (0.0, 1.0, number_classes))
+        colors = cmap [range (number_classes)]
+        print (colors)
+        gray = numpy.array ([[0.75, 0.75, 0.75, 1.0]])
+        print (gray)
+        colors = numpy.concatenate ((colors, gray))
+        print (colors)
     # setup the figure
     golden_number = (1 + math.sqrt (5)) / 2
     number_rows = int (math.ceil (math.sqrt (number_classes + 1) / golden_number))
@@ -48,7 +57,7 @@ def create_classifier_output_plots (classifier, filename, long_classes_names, sh
     axes_size = 4
     figwidth = axes_size * number_cols + wspace * (number_cols - 1)
     figheight = axes_size * number_rows + margin_top + hspace * (number_rows - 1)
-    figure = matplotlib.pyplot.figure (figsize = (figwidth, figheight), dpi = 200)
+    figure = matplotlib.pyplot.figure (figsize = (figwidth, figheight), dpi = 300)
     array_axes = figure.subplots (
         nrows = number_rows,
         ncols = number_cols,
@@ -111,8 +120,11 @@ def create_classifier_output_plots (classifier, filename, long_classes_names, sh
         an_axes = array_axes [index_axes % number_rows, index_axes / number_rows]
         an_axes.set_axis_off ()
     # save the figure
-    figure.savefig ('classifier-output.png')
+    figure.savefig ('classifier-output{}.jpg'.format (plot_filename_suffix))
     print ('Saved the plot')
+    correct_sum = sum ([sum_output [i,i] for i in range (number_classes)])
+    total = numpy.sum (sum_output)
+    print ('Total success rate is {}%'.format (100.0 * correct_sum / float (total)))
 
 def read_neural_network_output (filename, number_classes):
     # read the data
@@ -164,3 +176,26 @@ def read_decision_tree_output (filename, number_classes):
         result [real_class - 1, predicted_class - 1] += 1
     print (result)
     return result
+
+def read_genetic_programming_output (list_filenames, number_classes):
+    result = numpy.zeros ((number_classes, number_classes + 1), dtype = numpy.int16)
+    for a_filename in list_filenames:
+        # read the data
+        with open (a_filename, 'r') as fdr:
+            reader = csv.reader (fdr, delimiter = '\t', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
+            data = [row for row in reader]
+        # compute the classifier output matrix
+        for row in data:
+            real_class = int (row [0])
+            predicted_class = int (row [1])
+            result [real_class - 1, predicted_class - 1] += 1
+    print (result)
+    return result
+
+def write_output (output):
+    numpy.savetxt (
+        fname = 'classifier-output.csv',
+        X = output,
+        fmt = '%d',
+        delimiter = ',',
+    )
