@@ -34,7 +34,8 @@ def main ():
                                 'filename': b_data_set_file,
                                 'class': [0, 1]
                             },
-                        ]
+                        ],
+                        'has_header': args.has_header
                     }
                     filename = 'NN_{}{}_VS_{}{}.dataset'.format (
                         args.prefix,
@@ -53,7 +54,8 @@ def main ():
                         'class' : index * [0] + [1] + (len (list_data_sets) - index - 1) * [0]
                     }
                     for index, (a_data_set_file, _a_label) in enumerate (list_data_sets)
-                ]
+                ],
+                'has_header': args.has_header
             }
             filename = 'NN_{}ALL{}.dataset'.format (
                 args.prefix,
@@ -72,7 +74,8 @@ def create_data_sets_for_decision_tree (args, list_data_sets):
                         'class': index + 1
                     }
                     for index, (a_data_set_file, _a_label) in enumerate (list_data_sets)
-                ]
+                ],
+                'has_header': args.has_header
             },
             filename = 'DT_{}ALL{}.dataset'.format (
                 args.prefix,
@@ -93,7 +96,8 @@ def create_data_sets_for_decision_tree (args, list_data_sets):
                                 'filename': b_data_set_file,
                                 'class': 2
                             },
-                        ]
+                        ],
+                        'has_header': args.has_header
                     },
                     filename = 'DT_{}{}_VS_{}{}.dataset'.format (
                         args.prefix,
@@ -140,6 +144,11 @@ def parse_arguments ():
         type = str,
         nargs = '*',
         help = 'file with a data set'
+    )
+    parser.add_argument (
+        '--has-header',
+        action = 'store_true',
+        help = 'indicates if all files with a data set have a header row'
     )
     parser.add_argument (
         '--pairwise',

@@ -4,12 +4,13 @@ import yaml
 class DataSet:
     CLASS_COUNTER = 0
 
-    def __init__ (self, filename, class_name):
+    def __init__ (self, filename, class_name, has_header):
         print ("Reading CSV file {0}...".format (filename))
         self.filename = filename
         with open (filename, "r") as fd:
             reader = csv.reader (fd, delimiter = '\t', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
-            reader.next ()
+            if has_header:
+                reader.next ()
             self.rows = [row for row in reader]
         self.class_name = class_name
         DataSet.CLASS_COUNTER += 1
@@ -93,9 +94,20 @@ class Function:
         return result
 
 def load_data_sets (config_filename):
+    """
+    Load a configuration file specifying which data sets to use.
+    The file should use a YAML format.
+    The structure is:
+    datasets:
+    - {class: CLASS1, filename: FILENAME1}
+    - {class: CLASS2, filename: FILENAME2}
+    ...
+    - {class: CLASSn, filename: FILENAMEn}
+    has_header: BOOLEAN
+    """
     with open (config_filename, "r") as fd:
         dictionary = yaml.load (fd)
-        result = [DataSet (d ["filename"], d ["class"]) for d in dictionary ["datasets"]]
+        result = [DataSet (d ["filename"], d ["class"], dictionary ["has_header"]) for d in dictionary ["datasets"]]
     return result
 
 def split_data_sets_train_test (list_data_sets, fraction_test, RNG):
