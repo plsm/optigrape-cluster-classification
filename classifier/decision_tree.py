@@ -42,7 +42,7 @@ class Decision_Tree (base_algorithm.Base_Algorithm):
         filename = 'decision-tree_output_{0}.csv'.format (self.suffix)
         output_file = open (filename, 'w')
         output_writer = csv.writer (output_file, delimiter = ',', quoting = csv.QUOTE_NONNUMERIC, quotechar = '"')
-        header_row = ['predicted.class', 'real.class']
+        header_row = ['predicted.class', 'real.class', 'run']
         output_writer.writerow (header_row)
         return output_file, output_writer
 
@@ -55,7 +55,7 @@ class Decision_Tree (base_algorithm.Base_Algorithm):
             min_samples_split = self.parameters ["min_samples_split"],
             random_state = self.RNG
         )
-        current_time, score, hit = self.run_classifier (clf, train, test)
+        current_time, score, hit = self.run_classifier (clf, train, test, index_repeat)
         self.write_decision_tree_results (current_time, index_repeat, score, hit)
         self.write_decision_tree_structure (current_time, index_repeat, clf)
 

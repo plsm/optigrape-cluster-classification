@@ -52,7 +52,7 @@ class Base_Algorithm:
         )
         return result
 
-    def run_classifier (self, classifier, train, test):
+    def run_classifier (self, classifier, train, test, index_repeat):
         """
         Runs the given classifier on the given training set and evaluate it on the test set.
         The classifier should provide a fit and predict methods
@@ -64,7 +64,7 @@ class Base_Algorithm:
         current_time = time.time ()
         classifier.fit (train.xs, train.ys)
         ys = classifier.predict (test.xs)
-        self._write_classifier_output (ys, test.ys)
+        self._write_classifier_output (ys, test.ys, index_repeat)
         score = self.compute_score (ys, test.ys)
         print ("Score is {0}".format (score))
         hit = self.random_chance_to_hit (train, test)
@@ -114,14 +114,14 @@ class Base_Algorithm:
         result = [all_score] + partial_score
         return result
 
-    def _write_classifier_output (self, classifier_ys, test_ys):
+    def _write_classifier_output (self, classifier_ys, test_ys, index_repeat):
         if isinstance (classifier_ys [0], numpy.ndarray) and isinstance (test_ys [0], list):
             for an_y, a_test_y in zip (classifier_ys, test_ys):
-                row = list (an_y) + a_test_y
+                row = list (an_y) + a_test_y + [index_repeat]
                 self._output_writer.writerow (row)
         elif isinstance (classifier_ys [0], int) and isinstance (test_ys [0], int):
             for an_y, a_test_y in zip (classifier_ys, test_ys):
-                row = [an_y, a_test_y]
+                row = [an_y, a_test_y, index_repeat]
                 self._output_writer.writerow (row)
         else:
             print '{}'.format (type (classifier_ys [0]))

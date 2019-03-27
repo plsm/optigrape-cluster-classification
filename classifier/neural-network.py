@@ -53,6 +53,8 @@ class Neural_Network (base_algorithm.Base_Algorithm):
         ] + [
             'real.class.{}'.format (index + 1)
             for index in range (dataset.DataSet.CLASS_COUNTER)
+        ] + [
+            'run'
         ]
         output_writer.writerow (header_row)
         return output_file, output_writer
@@ -69,7 +71,7 @@ class Neural_Network (base_algorithm.Base_Algorithm):
             max_iter = self.parameters ["max_iterations"],
             early_stopping = self.parameters ["early_stopping"]
             )
-        current_time, score, hit = self.run_classifier (clf, train, test)
+        current_time, score, hit = self.run_classifier (clf, train, test, index_repeat)
         self.write_neural_network_results (current_time, index_repeat, clf, score, hit)
         self.write_neural_network_sructure (current_time, index_repeat, clf)
 
