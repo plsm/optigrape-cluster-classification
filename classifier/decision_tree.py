@@ -7,6 +7,7 @@ import dataset
 
 class Decision_Tree (base_algorithm.Base_Algorithm):
     def __init__ (self):
+        print ("I'm going to run decision tree")
         base_algorithm.Base_Algorithm.__init__ (self)
 
     def load_parameters (self, filename):
@@ -47,7 +48,6 @@ class Decision_Tree (base_algorithm.Base_Algorithm):
         return output_file, output_writer
 
     def run (self, fraction_test, index_repeat):
-        print ("I'm going to run decision tree")
         train, test = dataset.split_data_sets_train_test (self.data_sets, fraction_test, self.RNG)
         clf = sklearn.tree.DecisionTreeClassifier (
             criterion = self.parameters ["criterion"],

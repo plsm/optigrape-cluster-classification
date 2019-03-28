@@ -7,6 +7,7 @@ import dataset
 
 class Neural_Network (base_algorithm.Base_Algorithm):
     def __init__ (self):
+        print ("I'm going to run neural network")
         base_algorithm.Base_Algorithm.__init__ (self)
 
     def load_parameters (self, filename):
@@ -60,7 +61,6 @@ class Neural_Network (base_algorithm.Base_Algorithm):
         return output_file, output_writer
 
     def run (self, fraction_test, index_repeat):
-        print ("I'm going to run neural network")
         train, test = dataset.split_data_sets_train_test (self.data_sets, fraction_test, self.RNG)
         clf = sklearn.neural_network.MLPClassifier (
             activation = self.parameters ["activation"],
