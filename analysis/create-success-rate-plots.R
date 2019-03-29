@@ -1,97 +1,97 @@
 library ("data.table")
 library ("ggplot2")
 
-create.success.rate.boxplots <- function (
+## Create a box plot with the success rate of classifiers per different
+## parameters.  These parameters can be the data set used, the learning
+## algorithm parameters, the relation between the size of learning set and the
+## test set, among others.
+##
+## You should prepare a CSV file with two columns: one with the filename
+## containing the data produced by the python module in package
+## optigrape_cluster_classification.classifier; the second column should contain
+## a description of the parameters used to run the classifier.
+
+create.success.rate.boxplots.2 <- function (
   experiment.filename,
-  automatic.experiment.parameters = TRUE,
-  single.random.chance.wind = FALSE
+  single.random.chance.win = FALSE,
+  condition = NA,
+  classifier.success.rate = NA
 ) {
+  # read data ####
   experiments <- fread (experiment.filename)
   data <- experiments [
     ,
     fread (filename),
     by = .(
       filename,
-      data.sets,
-      learning.parameters,
-      fraction.test
+      labels
     )
   ]
-  plot.performance <- function (
-    show.iterations.performed = FALSE
-  ) {
-    par (
-      mar = c (4, 30, 5, 2)
-    )
-    boxplot (
-      formula = all.score~data.sets+learning.parameters+fraction.test,
-      data = data,
-      ylim = c (0, 1),
-      main = "classification score versus data sets and learning parameters",
-      ylab = NA,
-      xlab = "score",
-      horizontal = TRUE,
-      las = 1,
-      yaxt = ifelse (automatic.experiment.parameters, "s", "n")
-    )
-    if (!automatic.experiment.parameters) {
-      axis (
-        side = 2,
-        at = seq (1, nrow (experiments)),
-        labels = experiments [, labels],
-        las = 1
-      )
-    }
-    if (show.iterations.performed) {
-      Ns <- data [
-        ,
-        .N,
-        by = .(
-          data.sets,
-          learning.parameters,
-          fraction.test
-        )]
-      axis (
-        side = 4,
-        at = seq (1, nrow (Ns)),
-        labels = Ns [, N],
-        las = 1
-      )
-    }
-    if (single.random.chance.wind) {
-      abline (
-        v = data [, mean (random.chance.win)],
-        lty = 3
-      )
-    } else {
-      ys <- data [
-        ,
-        mean (random.chance.win),
-        by = .(
-            data.sets,
-            learning.parameters,
-            fraction.test
-            )
-        ]
-      ys <- ys [, V1]
-      points (
-        x = ys,
-        y = seq (1, nrow (experiments)),
-        col = "#FF0000",
-        pch = 4,
-        lwd = 2
-      )
-    }
-  }
-  png (
-    filename = "performance.png",
-    width = 1400,
-    height = 900
+  # setup plot ####
+  plot <- ggplot (
+  ) + geom_boxplot (
+    mapping = aes (
+      x = labels,
+      y = all.score
+    ),
+    data = data
+  ) + scale_y_continuous (
+    labels = scales::percent,
+    limits = c (0, 1)
   )
-  plot.performance ()
-  dev.off ()
+  # random classifier success rate ####
+  if (single.random.chance.win) {
+    ys <- data [, mean (random.chance.win)]
+    print (cat (sprintf ("mean random chance to win %f\n", ys)))
+    plot <- plot + geom_hline (
+      mapping = aes (
+        yintercept = ys,
+        colour = "red"
+      )
+    )
+  }
+  else {
+    ys <- data [
+      ,
+      mean (random.chance.win),
+      by = .(
+        labels
+      )
+    ]
+    plot <- plot + geom_point (
+      mapping = aes (
+        x = labels,
+        y = V1,
+        colour = "red"
+      ),
+      data = ys,
+      shape = 4,
+      stroke = 1.5
+    ) + scale_colour_manual (
+      values = c ("red"),
+      labels = c (NULL)
+    )
+  }
+  # plot common stuff ####
+  plot <- plot + labs (
+    y = ifelse (
+      is.na (classifier.success.rate),
+      "classifier success rate",
+      classifier.success.rate),
+    x = ifelse (
+      is.na (condition),
+      "condition",
+      condition),
+    colour = "random\nchance\nto win"
+  ) +
+    theme_bw () +
+    coord_flip ()
+  # save plot ####
+  ggsave (
+    filename = "success-rate.png",
+    plot = plot
+  )
 }
-
 
 ## Create an image plot with the median success rate of classifiers.  The data
 ## set was composed of two classes.
