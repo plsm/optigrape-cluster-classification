@@ -29,6 +29,7 @@ def create_classifier_output_plots (classifier, filename, long_classes_names, sh
         print ('Unrecognised classifier: {}!'.format (classifier))
         sys.exit (1)
     write_output (sum_output)
+    write_confusion_matrix (sum_output, long_classes_names, short_classes_names, classifier is NEURAL_NETWORK, plot_filename_suffix)
     # plot artist attributes
     if classifier is DECISION_TREE or classifier is GENETIC_PROGRAMING:
         NO_OUTPUT = []
@@ -125,6 +126,46 @@ def create_classifier_output_plots (classifier, filename, long_classes_names, sh
     correct_sum = sum ([sum_output [i,i] for i in range (number_classes)])
     total = numpy.sum (sum_output)
     print ('Total success rate is {}%'.format (100.0 * correct_sum / float (total)))
+
+def write_confusion_matrix (sum_output, long_classes_names, short_classes_names, has_no_output, html_table_filename_suffix):
+    number_classes = len (long_classes_names)
+    number_rows = number_classes + (1 if has_no_output else 0)
+    filename = 'confusion-matrix_{}.html'.format (html_table_filename_suffix)
+    fd = open (filename, 'w')
+    fd.write ('''<html><head><style>
+table      { border: none none solid solid 2pt;
+             border-collapse: collapse;
+             border-spacing: 15pt;
+             empty-cells: hide;
+             text-align: right }
+td         { border: solid 1pt }
+td.label { text-align: center }
+td.special { border: none 2pt }  /* The top-left cell */
+</style></head><body>''')
+    fd.write ('<table>')
+    fd.write ('<tr>')
+    fd.write ('<td class="special" colspan="2" rowspan="2"></td>')
+    fd.write ('<td colspan="{}" class="label">Actual Class</td>'.format (number_classes))
+    fd.write ('</tr>\n')
+    fd.write ('<tr>')
+    for label in short_classes_names:
+        fd.write ('<td class="label">{}</td>'.format (label))
+    fd.write ('</tr>\n')
+    for index_row in range (number_rows):
+        fd.write ('<tr>')
+        if index_row == 0:
+            fd.write ('<td class="label" rowspan="{}">Predicted Class</td>'.format (number_rows))
+        if index_row < number_classes:
+            fd.write ('<td class="label">{}</td>'.format (long_classes_names [index_row]))
+        else:
+            fd.write ('<td class="label">no output</td>')
+        for index_col in range (number_classes):
+            fd.write ('<td>{}</td>'.format (sum_output [index_col, index_row]))
+        fd.write ('</tr>\n')
+    fd.write ('</table>')
+    fd.write ('</body></html>')
+
+    fd.close ()
 
 def read_neural_network_output (filename, number_classes):
     # read the data
